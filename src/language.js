@@ -69,11 +69,14 @@ function dumpDataToExcel(filePath, data) {
     workbook.modified = new Date();
     workbook.lastPrinted = new Date(2020, 8, 6);
     const sheet = workbook.addWorksheet('BMC文字翻译');
+    sheet.views = [
+        { state: 'frozen', xSplit: 0, ySplit: 1, topLeftCell: 'A2', activeCell: 'C3' }
+    ];
     // header::columns
     sheet.columns = [
-        { header: '行号', key: 'lineno', width: 20 },
+        { header: '行号', key: 'lineno', width: 10 },
         { header: '中文', key: 'chinese', width: 62 },
-        { header: '俄文', key: 'russian', width: 42 }
+        { header: '俄文', key: 'russian', width: 62 }
     ];
     //添加数据
     let line_no = 2;
@@ -83,16 +86,55 @@ function dumpDataToExcel(filePath, data) {
         }
         //合并单元格
         sheet.mergeCells('A' + line_no + "C" + line_no);
+        sheet.getCell('A' + line_no).alignment = { horizontal: 'left', vertical: 'middle' };
         //格式化颜色
         //添加文件名
         sheet.insertRow(line_no, [data[i].filePath]);
+        sheet.getCell('A' + line_no).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFFFFFF' },
+            bgColor: { argb: 'FFC586C0' }
+        };
+        sheet.getCell('B' + line_no).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFFFFFF' },
+            bgColor: { argb: 'FFC586C0' }
+        };
+        sheet.getCell('C' + line_no).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFFFFFF' },
+            bgColor: { argb: 'FFC586C0' }
+        };
+        sheet.getCell('A' + line_no).font = {
+            name: 'Arial',
+            family: 2,
+            size: 16,
+            bold: false
+        };
         //添加数据
         for (let j = 0; j < data[i].rows.length; j++) {
             line_no++;
             sheet.insertRow(line_no, [data[i].rows[j][0], data[i].rows[j][1]]);
+            sheet.getCell('A' + line_no).alignment = { horizontal: 'center' };
         }
         line_no++;
     }
+
+    // sheet.addConditionalFormatting({
+    //     ref: 'A1:C1',
+    //     rules: [
+    //         {
+    //             type: 'expression',
+    //             formulae: ['MOD(ROW()+COLUMN(),2)=0'],
+    //             style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FF00FF00' } } },
+    //         }
+    //     ]
+    // });
+
+
     //写入文件
     workbook.xlsx.writeFile(filePath);
 }
